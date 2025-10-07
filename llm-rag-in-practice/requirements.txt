@@ -25,7 +25,7 @@ langchain-aws==0.2.3
 langchain-community==0.3.3
 langchain-core==0.3.15
 langchain-elasticsearch==0.3.0
-langchain-text-splitters==0.3.0
+langchain-text-splitters==1.0.0a1
 langsmith==0.1.137
 marshmallow==3.23.0
 multidict==6.1.0
