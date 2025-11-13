@@ -34,7 +34,8 @@ This following table lists the available patterns, each liked to its respective 
 | Observable EKS Clusters | Self-Service Observable Kubernetes with Amazon CDK and Grafana Cloud | [Guide](https://aws.amazon.com/marketplace/build-learn/application-performance-monitoring-observability/building-observable-amazon-eks-clusters-with-amazon-cdk-and-grafana-cloud?trk=51f363bd-ff3d-4c52-b270-5299b08aaa2b&sc_channel=el) | [Code](observable-self-service-eks) |
 | End to End RAG with Elastic and Amazon Bedrock | Fully automated infrastructure code for an end to end RAG implementation | [Guide](https://aws.amazon.com/marketplace/build-learn/data-analytics/end-to-end-rag-deployment-elastic-cloud?trk=51f363bd-ff3d-4c52-b270-5299b08aaa2b&sc_channel=el) | [Code](solution-templates/elastic/end-to-end-rag-terraform/)
 | Real-time fraud detection with Confluent Cloud on AWS | Identify fraudulent transaction attempts using Confluent Cloud Kafka and Flink, together with AWS RedShift and OpenSearch | [Guide](https://aws.amazon.com/marketplace/build-learn/data-analytics/real-time-fraud-detection-confluent-cloud?trk=51f363bd-ff3d-4c52-b270-5299b08aaa2b&sc_channel=el) | [Code](solution-templates/confluent/automated-fraud-detection/)
-| 
+| MongoDB Atlas Microservices API with Semantic Search | Complete microservices architecture with MongoDB Atlas, vector search, and Amazon Bedrock for AI-powered semantic search | [Guide](#) | [Code](solution-templates/mongodb-atlas/microservices-api-semantic-search/)
+|
 
 ## Security
 
