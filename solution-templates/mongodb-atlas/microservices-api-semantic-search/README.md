@@ -26,6 +26,7 @@ The solution implements a modern microservices pattern:
 ### Prerequisites
 
 - AWS Account with appropriate permissions
+- MongoDB Atlas subscription ([Subscribe on AWS Marketplace](https://aws.amazon.com/marketplace/pp/prodview-pp445qepfdy34))
 - Terraform installed (version 1.0+)
 - AWS CLI configured
 - MongoDB Atlas API keys ([How to create API keys](https://www.mongodb.com/docs/atlas/configure-api-access/#std-label-atlas-admin-api-access))
