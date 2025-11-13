@@ -33,23 +33,20 @@ The solution implements a modern microservices pattern:
 
 ### Quick Start
 
-1. **Subscribe to MongoDB Atlas on AWS Marketplace**
-   - [MongoDB Atlas on AWS Marketplace](https://aws.amazon.com/marketplace/pp/prodview-pp445qepfdy34)
-
-2. **Set up MongoDB Atlas credentials**
+1. **Set up MongoDB Atlas credentials**
    ```bash
    export MONGODB_ATLAS_PUBLIC_KEY="your-public-key"
    export MONGODB_ATLAS_PRIVATE_KEY="your-private-key"
    export MONGODB_ATLAS_ORG_ID="your-org-id"
    ```
 
-3. **Deploy the solution**
+2. **Deploy the solution**
    ```bash
    terraform init
    terraform apply
    ```
 
-4. **Test the APIs**
+3. **Test the APIs**
    ```bash
    # Test semantic search
    python3 semantic_search_test.py
