@@ -26,15 +26,14 @@ The solution implements a modern microservices pattern:
 ### Prerequisites
 
 - AWS Account with appropriate permissions
-- MongoDB Atlas account ([Start free trial](https://www.mongodb.com/cloud/atlas/register))
 - Terraform installed (version 1.0+)
 - AWS CLI configured
-- MongoDB Atlas API keys
+- MongoDB Atlas API keys ([How to create API keys](https://www.mongodb.com/docs/atlas/configure-api-access/#std-label-atlas-admin-api-access))
 
 ### Quick Start
 
 1. **Subscribe to MongoDB Atlas on AWS Marketplace**
-   - [MongoDB Atlas on AWS Marketplace](https://aws.amazon.com/marketplace/pp/prodview-example)
+   - [MongoDB Atlas on AWS Marketplace](https://aws.amazon.com/marketplace/pp/prodview-pp445qepfdy34)
 
 2. **Set up MongoDB Atlas credentials**
    ```bash
