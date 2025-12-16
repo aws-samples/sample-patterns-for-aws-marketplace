@@ -28,7 +28,7 @@ elastic-transport==8.17.1
 elasticsearch==8.18.1
 emoji==2.14.1
 et_xmlfile==2.0.0
-filelock==3.18.0
+filelock==3.20.1
 filetype==1.2.0
 flatbuffers==25.2.10
 fonttools==4.58.5
