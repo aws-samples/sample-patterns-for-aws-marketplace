@@ -1,9 +1,22 @@
+terraform {
+  required_providers {
+    ec = {
+      source  = "elastic/ec"
+      version = "0.12.2"
+    }
+  }
+}
+
+provider "ec" {
+  apikey = var.elastic_cloud_api_key
+}
+
 module "vpc" {
     source = "terraform-aws-modules/vpc/aws"
     version = "6.0.1"
     name = "marketplace-elastic"
     cidr = "10.0.0.0/16"
-    azs = ["us-east-1a", "us-east-1b", "us-east-1c"]
+    azs = ["us-east-1b", "us-east-1c", "us-east-1d"]
     private_subnets = ["10.0.10.0/24", "10.0.20.0/24", "10.0.30.0/24"]
     public_subnets = ["10.0.40.0/24", "10.0.50.0/24", "10.0.60.0/24"]
     enable_nat_gateway = true
