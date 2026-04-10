@@ -286,19 +286,17 @@ class A2AClient:
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                     "data": result,
                 }
-        except urllib.error.URLError as e:
+        except Exception as e:
+            # Catch all connection errors (URLError, RemoteDisconnected,
+            # ConnectionRefused, timeout, etc.) so the orchestrator can
+            # handle failures gracefully instead of crashing.
+            error_msg = f"{type(e).__name__}: {e}"
+            if self.verbose:
+                print(f"  [HTTP] Error calling {agent_id}: {error_msg}")
             return {
                 "agent": agent_id,
                 "task": task,
-                "error": f"HTTP call failed: {e}",
+                "error": error_msg,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
-                "data": {"error": f"HTTP call failed: {e}"},
-            }
-        except json.JSONDecodeError:
-            return {
-                "agent": agent_id,
-                "task": task,
-                "error": "Invalid JSON response from agent",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "data": {"error": "Invalid JSON response from agent"},
+                "data": {"error": error_msg},
             }
