@@ -591,7 +591,11 @@ def main() -> None:
     args = parser.parse_args()
 
     os.environ.setdefault("AGENT_MOCK_MODE", "true")
-    print("  Mock mode ON  (sub-agent data simulated, LLM calls are live via Bedrock)\n")
+    mock_on = os.environ.get("AGENT_MOCK_MODE", "true").lower() == "true"
+    if mock_on:
+        print("  Mock mode ON  (sub-agent data simulated, LLM calls are live via Bedrock)\n")
+    else:
+        print("  Live mode ON  (calling real agent servers on localhost)\n")
 
     from module4.agent import create_orchestrator
 
