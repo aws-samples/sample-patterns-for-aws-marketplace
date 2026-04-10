@@ -12,7 +12,7 @@
 
 # ── Module 4: Orchestrator (LangChain + LangGraph) ──────────────────────────
 langchain>=0.1.0
-langchain-aws>=0.1.0
+langchain-aws>=1.0.0,<1.4.0          # 1.4+ has breaking changes with ChatBedrock tool binding
 langgraph>=0.0.20
 
 # ── Module 1: Strands Agent Framework ───────────────────────────────────────
