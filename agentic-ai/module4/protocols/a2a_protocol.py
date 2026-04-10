@@ -106,7 +106,7 @@ class A2AClient:
         if _MOCK:
             response = get_mock_response(agent_id, task, **kwargs)
         else:
-            response = self._http_call(endpoint, task, payload or {})
+            response = self._http_call(agent_id, task, payload or kwargs)
 
         if self.verbose:
             status = response.get("data", {}).get("error", "OK")
@@ -194,9 +194,62 @@ class A2AClient:
 
         return results
 
+    def _build_request(
+        self,
+        agent_id: str,
+        task: str,
+        payload: dict[str, Any],
+    ) -> tuple[str, dict[str, Any]]:
+        """
+        Translate a generic (agent_id, task) into the module's actual
+        endpoint path and payload format.
+
+        Each module has its own API contract:
+          - Module 1: POST /invocations  {"prompt": "..."}
+          - Module 2: POST /analyze      {"repo_path": "..."}
+          - Module 3: POST /generate | /validate | /analyze  (varies)
+        """
+        endpoint = AGENT_ENDPOINTS.get(agent_id, "")
+
+        if agent_id == "module1":
+            # Module 1 uses AgentCore-style single /invocations endpoint
+            prompt = payload.get("prompt", "")
+            if not prompt:
+                # Build a prompt from the task name
+                task_prompts = {
+                    "health_check": f"Give me a complete health check of our {payload.get('region', 'us-east-1')} environment. "
+                                    "If you find anything wrong, tell me what it is and what you'd recommend.",
+                    "list_resources": f"List all AWS resources running in {payload.get('region', 'us-east-1')}.",
+                }
+                prompt = task_prompts.get(task, f"Perform a {task} in {payload.get('region', 'us-east-1')}")
+            url = f"{endpoint}/invocations"
+            body = {"prompt": prompt, "region": payload.get("region", "us-east-1")}
+
+        elif agent_id == "module2":
+            # Module 2 uses POST /analyze with {"repo_path": "..."}
+            url = f"{endpoint}/analyze"
+            body = {"repo_path": payload.get("repo_path", "/mock/repo/nodejs-app")}
+
+        elif agent_id == "module3":
+            # Module 3 has /generate, /validate, /analyze
+            task_to_path = {
+                "generate_cdk": "generate",
+                "validate_cdk": "validate",
+                "analyze_requirements": "analyze",
+            }
+            path = task_to_path.get(task, task)
+            url = f"{endpoint}/{path}"
+            body = payload
+
+        else:
+            url = f"{endpoint}/{task}"
+            body = payload
+
+        return url, body
+
     def _http_call(
         self,
-        endpoint: str,
+        agent_id: str,
         task: str,
         payload: dict[str, Any],
     ) -> dict[str, Any]:
@@ -204,12 +257,16 @@ class A2AClient:
         Make an actual HTTP call to an agent endpoint.
 
         Used in live mode when agents are running as services.
+        Translates the generic task request into each module's actual API format.
         """
         import urllib.request
         import urllib.error
 
-        url = f"{endpoint}/{task}"
-        data = json.dumps(payload).encode("utf-8")
+        url, body = self._build_request(agent_id, task, payload)
+        data = json.dumps(body).encode("utf-8")
+
+        if self.verbose:
+            print(f"  [HTTP] Calling: {url}")
 
         req = urllib.request.Request(
             url,
@@ -219,18 +276,29 @@ class A2AClient:
         )
 
         try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                body = resp.read().decode("utf-8")
-                return json.loads(body)
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                raw = resp.read().decode("utf-8")
+                result = json.loads(raw)
+                # Wrap in standard format so downstream code works consistently
+                return {
+                    "agent": agent_id,
+                    "task": task,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "data": result,
+                }
         except urllib.error.URLError as e:
             return {
-                "agent": "unknown",
+                "agent": agent_id,
+                "task": task,
                 "error": f"HTTP call failed: {e}",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
+                "data": {"error": f"HTTP call failed: {e}"},
             }
         except json.JSONDecodeError:
             return {
-                "agent": "unknown",
+                "agent": agent_id,
+                "task": task,
                 "error": "Invalid JSON response from agent",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
+                "data": {"error": "Invalid JSON response from agent"},
             }
