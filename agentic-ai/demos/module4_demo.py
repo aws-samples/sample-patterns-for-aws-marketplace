@@ -299,7 +299,7 @@ def section_4_mcp_protocol(agent) -> None:
 # Section 5 — Sequential Orchestration (live LLM)
 # ---------------------------------------------------------------------------
 
-def section_5_sequential(agent) -> None:
+def section_5_sequential(agent, repo_path: str | None = None) -> None:
     header("SECTION 5 — Sequential Orchestration (Pipeline)", "blue")
     box(
         "Sequential Pipeline: Agent A → Agent B",
@@ -329,9 +329,11 @@ def section_5_sequential(agent) -> None:
         "then feed that output to Module 3 via MCP. Watch the tool call sequence."
     )
 
+    repo_ref = f"at {repo_path}" if repo_path else ""
     q = (
-        "Analyze my repository to understand what applications and dependencies it has, "
-        "then use those results to generate CDK infrastructure stacks for it."
+        f"Analyze the repository {repo_ref} to understand "
+        "what applications and dependencies it has, then use those results to generate "
+        "CDK infrastructure stacks for it."
     )
     user_says(q)
     print()
@@ -350,7 +352,7 @@ def section_5_sequential(agent) -> None:
 # Section 6 — Parallel Fan-Out (live LLM)
 # ---------------------------------------------------------------------------
 
-def section_6_parallel(agent) -> None:
+def section_6_parallel(agent, repo_path: str | None = None) -> None:
     header("SECTION 6 — Parallel Fan-Out / Fan-In", "blue")
     box(
         "Parallel Execution: Agent A + Agent B simultaneously",
@@ -383,9 +385,10 @@ def section_6_parallel(agent) -> None:
         "multiple agent calls simultaneously. Watch it choose this tool."
     )
 
+    repo_ref = f"the repository at {repo_path}" if repo_path else "my repository"
     q = (
         "I need two things done at the same time: check the health of my AWS "
-        "infrastructure in us-east-1, and also analyze my repository. "
+        f"infrastructure in us-east-1, and also analyze {repo_ref}. "
         "These are independent — run them in parallel and give me combined results."
     )
     user_says(q)
@@ -540,7 +543,7 @@ def section_8_error_handling(agent) -> None:
 # Section 9 — Full Orchestrated Workflow (live LLM)
 # ---------------------------------------------------------------------------
 
-def section_9_full_workflow(agent) -> None:
+def section_9_full_workflow(agent, repo_path: str | None = None) -> None:
     header("SECTION 9 — Complete Orchestrated Workflow", "cyan")
     box(
         "End-to-End: All Patterns Combined",
@@ -560,9 +563,10 @@ def section_9_full_workflow(agent) -> None:
         "the results. All reasoning is live through Bedrock."
     )
 
+    repo_ref = f"the repository at {repo_path}" if repo_path else "my repository"
     q = (
         "I need a full assessment of my environment. First, check the health of my "
-        "AWS infrastructure in us-east-1 and analyze my repository at the same time. "
+        f"AWS infrastructure in us-east-1 and analyze {repo_ref} at the same time. "
         "Then, based on the repository analysis, generate CDK infrastructure stacks "
         "for any services the repo needs. Finally, synthesize all the findings into "
         "a summary with recommendations."
@@ -588,7 +592,11 @@ def section_9_full_workflow(agent) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Module 4 Workshop Demo")
     parser.add_argument("--section", "-s", type=int, choices=range(1, 10), metavar="1-9")
+    parser.add_argument("--repo", type=str, help="Path to repository for live analysis (e.g., ~/repos/my-app)")
     args = parser.parse_args()
+
+    # Resolve repo path for sections that need it
+    repo_path = os.path.expanduser(args.repo) if args.repo else None
 
     os.environ.setdefault("AGENT_MOCK_MODE", "true")
     mock_on = os.environ.get("AGENT_MOCK_MODE", "true").lower() == "true"
@@ -623,11 +631,11 @@ def main() -> None:
         2: section_2_architecture,
         3: lambda: section_3_direct_http(agent),
         4: lambda: section_4_mcp_protocol(agent),
-        5: lambda: section_5_sequential(agent),
-        6: lambda: section_6_parallel(agent),
+        5: lambda: section_5_sequential(agent, repo_path),
+        6: lambda: section_6_parallel(agent, repo_path),
         7: section_7_context_handoff,
         8: lambda: section_8_error_handling(agent),
-        9: lambda: section_9_full_workflow(agent),
+        9: lambda: section_9_full_workflow(agent, repo_path),
     }
 
     if args.section:
