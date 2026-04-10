@@ -18,16 +18,56 @@ Module 4 demonstrates **multi-agent orchestration** — how to compose specialis
 
 ## Quick Start
 
+### Setup
+
 ```bash
-# Mock mode (no AWS account or running agents needed, but requires Bedrock access)
+cd agentic-ai/module4
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Run in Mock Mode (sub-agent data simulated, LLM calls are live)
+
+```bash
+cd agentic-ai
 source module4/.venv/bin/activate
 export AWS_PROFILE=your-profile
 export AWS_REGION=us-east-1
 AGENT_MOCK_MODE=true python demos/module4_demo.py
 
-# Run specific demo section
+# Or run a specific section (1-9)
 AGENT_MOCK_MODE=true python demos/module4_demo.py --section 3
 ```
+
+### Run in Live Mode (all agents running as servers)
+
+```bash
+# Terminal 1 — Module 1 (Infrastructure Agent)
+cd agentic-ai
+source module4/.venv/bin/activate
+export AWS_PROFILE=your-profile
+export AWS_REGION=us-east-1
+AGENT_MOCK_AWS=true python -m module1.app
+
+# Terminal 2 — Module 2 (Repository Agent)
+source module4/.venv/bin/activate
+AGENT_MOCK_REPO=true python -m module2.app
+
+# Terminal 3 — Module 3 (CDK Generation Agent)
+source module4/.venv/bin/activate
+AGENT_MOCK_REPO=true python -m module3.app
+
+# Terminal 4 — Module 4 (Orchestrator)
+source module4/.venv/bin/activate
+export AWS_PROFILE=your-profile
+export AWS_REGION=us-east-1
+python demos/module4_demo.py
+```
+
+> **Note:** `AGENT_MOCK_AWS` and `AGENT_MOCK_REPO` mock the tool data (AWS resources,
+> repo contents) but all modules still make real LLM calls to Amazon Bedrock.
+> Remove these flags to query real AWS infrastructure and scan real repositories.
 
 ## Architecture
 
