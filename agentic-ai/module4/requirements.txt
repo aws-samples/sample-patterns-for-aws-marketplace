@@ -1,0 +1,38 @@
+# =============================================================================
+# Module 4: Multi-Agent Orchestration — All Dependencies
+# =============================================================================
+# This file includes everything needed to run Module 4, including dependencies
+# for Modules 1-3 when running in live mode (all agent servers locally).
+#
+# Install:
+#   cd module4
+#   python3 -m venv .venv
+#   source .venv/bin/activate
+#   pip install -r requirements.txt
+
+# ── Module 4: Orchestrator (LangChain + LangGraph) ──────────────────────────
+langchain>=0.1.0
+langchain-aws>=0.1.0
+langgraph>=0.0.20
+
+# ── Module 1: Strands Agent Framework ───────────────────────────────────────
+strands-agents>=1.0.0
+strands-agents-tools>=0.1.0
+
+# ── Module 2: Repository Analysis ───────────────────────────────────────────
+langchain-community>=0.0.20
+gitpython>=3.1.40
+
+# ── Module 3: CDK Generation & Evaluation ────────────────────────────────────
+# Note: aws-cdk-lib is large (~50MB). Only needed if running Module 3 live.
+# aws-cdk-lib>=2.100.0
+# constructs>=10.0.0
+
+# ── AWS SDK ──────────────────────────────────────────────────────────────────
+boto3>=1.38.0
+
+# ── Rich console output (demo formatting) ────────────────────────────────────
+rich>=13.7.0
+
+# ── Utilities ────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0
