@@ -50,8 +50,11 @@ try:
     from rich.console import Console
     from rich.panel import Panel
     from rich.table import Table
+    from rich.columns import Columns
     from rich.syntax import Syntax
+    from rich.text import Text
     _c = Console()
+    _RICH = True
 
     def header(text: str, color: str = "cyan") -> None:
         _c.rule(f"[bold {color}]{text}[/bold {color}]", style=color)
@@ -69,7 +72,16 @@ try:
         syntax = Syntax(code, language, theme="monokai", line_numbers=False)
         _c.print(syntax)
 
+    def info_list(title: str, items: list[tuple[str, str]], color: str = "cyan") -> None:
+        """Render a titled list of key-value items using Rich."""
+        _c.print(f"\n  [bold {color}]{title}[/bold {color}]")
+        for label, desc in items:
+            _c.print(f"    [bold]{label}[/bold] — {desc}")
+        _c.print()
+
 except ImportError:
+    _RICH = False
+
     def header(text: str, color: str = "cyan") -> None:  # type: ignore[misc]
         print(f"\n{'═' * 62}\n  {text}\n{'═' * 62}")
 
@@ -84,6 +96,12 @@ except ImportError:
 
     def code_block(code: str, language: str = "python") -> None:  # type: ignore[misc]
         print(f"\n{code}\n")
+
+    def info_list(title: str, items: list[tuple[str, str]], color: str = "cyan") -> None:  # type: ignore[misc]
+        print(f"\n  {title}")
+        for label, desc in items:
+            print(f"    {label} — {desc}")
+        print()
 
 
 def pause(msg: str = "  ↵  Press Enter to continue...") -> None:
@@ -118,29 +136,23 @@ def section_1_why_orchestration() -> None:
         "No single agent can handle this — we need orchestration.",
     )
 
-    print("""
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  SINGLE AGENT (Modules 1-3)                                     │
-  │                                                                  │
-  │    User ──→ Agent ──→ Tools ──→ Response                        │
-  │                                                                  │
-  │    ✓ Good for focused, single-domain tasks                      │
-  │    ✗ Cannot combine capabilities across domains                  │
-  │    ✗ No coordination between agents                              │
-  └─────────────────────────────────────────────────────────────────┘
+    box(
+        "Single Agent (Modules 1-3)",
+        "User → Agent → Tools → Response\n\n"
+        "  ✓ Good for focused, single-domain tasks\n"
+        "  ✗ Cannot combine capabilities across domains\n"
+        "  ✗ No coordination between agents",
+    )
 
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  MULTI-AGENT ORCHESTRATION (Module 4)                           │
-  │                                                                  │
-  │    User ──→ Orchestrator ──┬──→ Agent 1 (infra)                 │
-  │                            ├──→ Agent 2 (repo)   ──→ Synthesis  │
-  │                            └──→ Agent 3 (CDK)                   │
-  │                                                                  │
-  │    ✓ Combines specialist capabilities                            │
-  │    ✓ Sequential and parallel execution                           │
-  │    ✓ Cross-domain reasoning and synthesis                        │
-  └─────────────────────────────────────────────────────────────────┘
-""")
+    box(
+        "Multi-Agent Orchestration (Module 4)",
+        "User → Orchestrator → Agent 1 (infra)\n"
+        "                    → Agent 2 (repo)    → Synthesis\n"
+        "                    → Agent 3 (CDK)\n\n"
+        "  ✓ Combines specialist capabilities\n"
+        "  ✓ Sequential and parallel execution\n"
+        "  ✓ Cross-domain reasoning and synthesis",
+    )
 
     concept(
         "Multi-agent orchestration lets you compose specialist agents into workflows "
@@ -162,29 +174,29 @@ def section_2_architecture() -> None:
         "each specialist agent, but does NO domain work itself.",
     )
 
-    print("""
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  ORCHESTRATOR (Module 4)                                        │
-  │                                                                  │
-  │    model = ChatBedrock(claude-sonnet-4, temp=0.1)               │
-  │    agent = create_react_agent(model, all_tools)                 │
-  │                                                                  │
-  │    HTTP Tools (Direct REST):          MCP Tools (tool protocol):  │
-  │      • call_infrastructure_agent      • mcp_analyze_requirements │
-  │      • call_repository_agent          • mcp_generate_cdk         │
-  │      • run_sequential_pipeline        • mcp_validate_cdk         │
-  │      • run_parallel_fanout                                       │
-  │      • synthesize_results                                        │
-  └─────────────────────────────────────────────────────────────────┘
-              │                                   │
-    Direct HTTP (POST)                   MCP (tool invocation)
-              │                                   │
-  ┌───────────┴────────────┐         ┌────────────┴───────────┐
-  │  Module 1  │  Module 2  │         │       Module 3          │
-  │  (infra)   │  (repo)    │         │       (CDK gen)         │
-  │  port 8080 │  port 8081 │         │    (MCP server)         │
-  └────────────┴────────────┘         └─────────────────────────┘
-""")
+    box(
+        "Orchestrator (Module 4)",
+        "model = ChatBedrock(claude-sonnet-4, temp=0.1)\n"
+        "agent = create_react_agent(model, all_tools)\n\n"
+        "HTTP Tools (Direct REST):          MCP Tools (tool protocol):\n"
+        "  • call_infrastructure_agent      • mcp_analyze_requirements\n"
+        "  • call_repository_agent          • mcp_generate_cdk\n"
+        "  • run_sequential_pipeline        • mcp_validate_cdk\n"
+        "  • run_parallel_fanout\n"
+        "  • synthesize_results",
+    )
+
+    if _RICH:
+        table = Table(title="Agent Communication", show_header=True, border_style="cyan")
+        table.add_column("Protocol", style="bold")
+        table.add_column("Agents", style="cyan")
+        table.add_column("How it works")
+        table.add_row("Direct HTTP", "Module 1, Module 2", "HTTP POST to agent REST endpoints")
+        table.add_row("MCP", "Module 3", "Tool invocation via MCP server")
+        _c.print(table)
+    else:
+        print("  Direct HTTP → Module 1 (port 8080), Module 2 (port 8081)")
+        print("  MCP         → Module 3 (tool-based)")
 
     concept(
         "Two communication protocols, one orchestrator. Direct HTTP for agents that "
@@ -274,23 +286,21 @@ def section_4_mcp_protocol(agent) -> None:
         "Pattern: Orchestrator → tool call → MCP Server → Agent logic → Result",
     )
 
-    print("""
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  Direct HTTP vs MCP — Key Differences                             │
-  │                                                                  │
-  │  Direct HTTP (agent-to-agent):                                   │
-  │    • Communication: HTTP POST to agent endpoint                 │
-  │    • Discovery: Static URLs configured in advance               │
-  │    • Coupling: Loose — agents are separate services              │
-  │    • Best for: Independent agents, microservice architectures    │
-  │                                                                  │
-  │  MCP (Model Context Protocol):                                   │
-  │    • Communication: Tool invocation (function call)              │
-  │    • Discovery: Dynamic — server advertises available tools      │
-  │    • Coupling: Tighter — tools run in orchestrator's context     │
-  │    • Best for: Shared toolchains, embedded agent capabilities    │
-  └─────────────────────────────────────────────────────────────────┘
-""")
+    if _RICH:
+        table = Table(title="Direct HTTP vs MCP — Key Differences", border_style="cyan")
+        table.add_column("", style="bold")
+        table.add_column("Direct HTTP", style="green")
+        table.add_column("MCP", style="blue")
+        table.add_row("Communication", "HTTP POST to endpoint", "Tool invocation (function call)")
+        table.add_row("Discovery", "Static URLs configured in advance", "Dynamic — server advertises tools")
+        table.add_row("Coupling", "Loose — separate services", "Tighter — in orchestrator's context")
+        table.add_row("Best for", "Independent agents, microservices", "Shared toolchains, embedded capabilities")
+        _c.print(table)
+    else:
+        info_list("Direct HTTP vs MCP", [
+            ("Direct HTTP", "HTTP POST, static URLs, loose coupling, microservice architectures"),
+            ("MCP", "Tool invocation, dynamic discovery, tighter coupling, shared toolchains"),
+        ])
 
     concept(
         "Watch the orchestrator use MCP tools (mcp_*) instead of Direct HTTP calls. "
@@ -325,21 +335,13 @@ def section_5_sequential(agent, repo_path: str | None = None) -> None:
         "Module 3 NEEDS the repository analysis to know what to generate.",
     )
 
-    print("""
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  SEQUENTIAL PIPELINE                                            │
-  │                                                                  │
-  │    Step 1          Step 2           Step 3                      │
-  │  ┌──────────┐   ┌──────────┐   ┌───────────────┐               │
-  │  │ Module 2  │──→│ Module 3  │──→│ Synthesize    │               │
-  │  │ Analyze   │   │ Generate  │   │ Results       │               │
-  │  │ Repository│   │ CDK Code  │   │               │               │
-  │  └──────────┘   └──────────┘   └───────────────┘               │
-  │       │               ↑                                         │
-  │       └───────────────┘                                         │
-  │       (output feeds input)                                      │
-  └─────────────────────────────────────────────────────────────────┘
-""")
+    info_list("Pipeline Steps", [
+        ("Step 1: Module 2", "Analyze Repository → identify apps and dependencies"),
+        ("Step 2: Module 3", "Generate CDK Code → using Module 2's output"),
+        ("Step 3: Synthesize", "Combine results → unified response"),
+    ], color="blue")
+
+    _c.print("  [dim]Each step's output feeds the next step's input.[/dim]\n") if _RICH else print("  Each step's output feeds the next step's input.\n")
 
     concept(
         "The orchestrator must decide to call Module 2 FIRST via Direct HTTP, "
@@ -378,24 +380,14 @@ def section_6_parallel(agent, repo_path: str | None = None) -> None:
         "the repository (Module 2) — neither needs the other's output.",
     )
 
-    print("""
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  PARALLEL FAN-OUT / FAN-IN                                      │
-  │                                                                  │
-  │                   ┌──────────────┐                              │
-  │              ┌───→│  Module 1     │───┐                          │
-  │              │    │  Health Check │   │                          │
-  │  ┌────────┐  │    └──────────────┘   │   ┌───────────────┐      │
-  │  │Orchestr│──┤                       ├──→│  Synthesize   │      │
-  │  │  ator  │  │    ┌──────────────┐   │   │  Results      │      │
-  │  └────────┘  │    │  Module 2     │   │   └───────────────┘      │
-  │              └───→│  Repo Scan   │───┘                          │
-  │                   └──────────────┘                              │
-  │                                                                  │
-  │  ✓ Faster than sequential — total time ≈ slowest agent          │
-  │  ✓ Independent tasks don't block each other                      │
-  └─────────────────────────────────────────────────────────────────┘
-""")
+    box(
+        "Fan-Out / Fan-In Pattern",
+        "               ┌─ Module 1 (Health Check) ─┐\n"
+        "Orchestrator ──┤                            ├──→ Synthesize\n"
+        "               └─ Module 2 (Repo Scan)    ─┘\n\n"
+        "  ✓ Faster than sequential — total time ≈ slowest agent\n"
+        "  ✓ Independent tasks don't block each other",
+    )
 
     concept(
         "The orchestrator has a run_parallel_fanout tool that dispatches "
@@ -437,26 +429,35 @@ def section_7_context_handoff() -> None:
         "  3. Shared state — agents read/write to a common state store",
     )
 
-    print("""
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  PATTERN 1: Direct Passthrough                                   │
-  │                                                                  │
-  │    Module 2 output ──→ [raw JSON] ──→ Module 3 input            │
-  │    Simple but fragile — output format must match input schema     │
-  │                                                                  │
-  │  PATTERN 2: Structured Handoff (Module 4 approach)               │
-  │                                                                  │
-  │    Module 2 output ──→ [Orchestrator transforms] ──→ Module 3    │
-  │    Orchestrator maps fields, adds context, validates format       │
-  │                                                                  │
-  │  PATTERN 3: Shared State Store                                   │
-  │                                                                  │
-  │    Module 2 ──writes──→ [State Store] ──reads──→ Module 3        │
-  │    Agents read/write independently; state decouples them          │
-  └─────────────────────────────────────────────────────────────────┘
-""")
+    if _RICH:
+        table = Table(title="Context Handoff Patterns", border_style="magenta")
+        table.add_column("Pattern", style="bold")
+        table.add_column("How it works")
+        table.add_column("Trade-off", style="dim")
+        table.add_row(
+            "1. Direct Passthrough",
+            "Module 2 output → [raw JSON] → Module 3 input",
+            "Simple but fragile — formats must match",
+        )
+        table.add_row(
+            "2. Structured Handoff",
+            "Module 2 output → [Orchestrator transforms] → Module 3",
+            "Module 4's approach — orchestrator maps fields",
+        )
+        table.add_row(
+            "3. Shared State Store",
+            "Module 2 → writes → [State Store] → reads → Module 3",
+            "Decoupled but adds infrastructure",
+        )
+        _c.print(table)
+    else:
+        info_list("Context Handoff Patterns", [
+            ("Direct Passthrough", "Raw JSON forwarded — simple but fragile"),
+            ("Structured Handoff", "Orchestrator transforms data — Module 4's approach"),
+            ("Shared State Store", "Agents read/write to common store — decoupled"),
+        ])
 
-    print("  [Demo] Structured Handoff — Module 2 → Orchestrator → Module 3\n")
+    print("\n  [Demo] Structured Handoff — Module 2 → Orchestrator → Module 3\n")
 
     # Simulate Module 2 output
     module2_output = {
@@ -515,23 +516,12 @@ def section_8_error_handling(agent) -> None:
         "The orchestrator must handle these gracefully.",
     )
 
-    print("""
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  ERROR HANDLING STRATEGIES                                       │
-  │                                                                  │
-  │  1. RETRY — Transient failures (timeouts, rate limits)          │
-  │     → Retry with exponential backoff (max 3 attempts)            │
-  │                                                                  │
-  │  2. FALLBACK — Agent unavailable                                 │
-  │     → Use cached results or skip non-critical agent              │
-  │                                                                  │
-  │  3. DEGRADE — Partial results available                          │
-  │     → Return what we have, flag missing pieces                   │
-  │                                                                  │
-  │  4. ESCALATE — Critical failure                                  │
-  │     → Report error to user, suggest manual action                │
-  └─────────────────────────────────────────────────────────────────┘
-""")
+    info_list("Error Handling Strategies", [
+        ("1. RETRY", "Transient failures (timeouts, rate limits) → exponential backoff"),
+        ("2. FALLBACK", "Agent unavailable → use cached results or skip non-critical agent"),
+        ("3. DEGRADE", "Partial results available → return what we have, flag missing pieces"),
+        ("4. ESCALATE", "Critical failure → report error to user, suggest manual action"),
+    ], color="red")
 
     concept(
         "Watch how the orchestrator handles a request for a task that doesn't exist "
