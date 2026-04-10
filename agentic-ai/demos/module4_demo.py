@@ -192,6 +192,23 @@ def section_2_architecture() -> None:
         "directly (function-level integration). Both patterns are common in "
         "production multi-agent systems."
     )
+
+    box(
+        "Framework Consistency: LangGraph Across Modules",
+        "The orchestrator uses the SAME LangGraph create_react_agent as Modules 2 and 3.\n"
+        "Same framework, same ReAct loop, same ChatBedrock model — different tools.\n\n"
+        "  Module 2: create_react_agent(model, repo_tools)      → analyzes repos\n"
+        "  Module 3: create_react_agent(model, cdk_tools)       → generates CDK\n"
+        "  Module 4: create_react_agent(model, orchestr_tools)  → coordinates agents\n\n"
+        "The LLM decides which tools to call. In Module 4, those tools happen to call\n"
+        "other agents instead of AWS APIs or file systems. The orchestrator doesn't\n"
+        "need special framework support — it's just a ReAct agent with delegation tools.",
+    )
+
+    concept(
+        "This is the power of the agent abstraction: swap the tools and system prompt, "
+        "and the same LangGraph agent becomes a specialist OR an orchestrator."
+    )
     pause()
 
 
