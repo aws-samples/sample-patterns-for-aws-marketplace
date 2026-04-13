@@ -136,6 +136,21 @@ def section_1_why_orchestration() -> None:
         "No single agent can handle this — we need orchestration.",
     )
 
+    code_block("""# Single agent (Modules 1-3): one agent, one domain
+agent = create_react_agent(model, infrastructure_tools)
+agent.invoke({"messages": [("user", "Check ECS health")]})  # only infra
+
+# Multi-agent (Module 4): orchestrator delegates to specialists
+orchestrator = create_react_agent(model, [
+    call_infrastructure_agent,   # → Module 1
+    call_repository_agent,       # → Module 2
+    mcp_generate_cdk,            # → Module 3
+    run_parallel_fanout,         # → multiple agents at once
+    synthesize_results,          # → combine outputs
+])
+orchestrator.invoke({"messages": [("user", "Analyze repo AND check infra")]})
+""")
+
     box(
         "Single Agent (Modules 1-3)",
         "User → Agent → Tools → Response\n\n"
@@ -174,10 +189,20 @@ def section_2_architecture() -> None:
         "each specialist agent, but does NO domain work itself.",
     )
 
+    code_block("""# module4/agent.py — Orchestrator construction
+from langgraph.prebuilt import create_react_agent
+from module4.config.models import get_chat_bedrock_model
+from module4.tools.orchestration_tools import ALL_TOOLS  # HTTP tools
+from module4.protocols.mcp_protocol import MCP_TOOLS     # MCP tools
+
+model = get_chat_bedrock_model(temperature=0.1)
+all_tools = list(ALL_TOOLS) + list(MCP_TOOLS)  # 5 HTTP + 3 MCP = 8 tools
+
+orchestrator = create_react_agent(model, all_tools, prompt=ORCHESTRATOR_PROMPT)
+""")
+
     box(
-        "Orchestrator (Module 4)",
-        "model = ChatBedrock(claude-sonnet-4, temp=0.1)\n"
-        "agent = create_react_agent(model, all_tools)\n\n"
+        "Orchestrator Tools (8 total)",
         "HTTP Tools (Direct REST):          MCP Tools (tool protocol):\n"
         "  • call_infrastructure_agent      • mcp_analyze_requirements\n"
         "  • call_repository_agent          • mcp_generate_cdk\n"
@@ -240,16 +265,21 @@ def section_3_direct_http(agent) -> None:
         "Pattern: Orchestrator → HTTP POST → Agent → JSON Response",
     )
 
-    code_block("""# Direct HTTP — How it works under the hood
-from module4.protocols.a2a_protocol import A2AClient
+    code_block("""# The LLM sees these tools and decides which to call based on the user's request
 
-client = A2AClient(verbose=True)
+@tool
+def call_infrastructure_agent(task: str, region: str = "us-east-1") -> str:
+    \"\"\"Call Module 1 via HTTP POST to observe AWS infrastructure.\"\"\"
+    result = http_client.call_agent("module1", task, region=region)
+    return json.dumps(result)
 
-# Call Module 1 via HTTP POST to http://localhost:8080/health_check
-result = client.call_agent("module1", "health_check", region="us-east-1")
+@tool
+def call_repository_agent(task: str, repo_path: str = "/repo") -> str:
+    \"\"\"Call Module 2 via HTTP POST to analyze a code repository.\"\"\"
+    result = http_client.call_agent("module2", task, repo_path=repo_path)
+    return json.dumps(result)
 
-# Call Module 2 via HTTP POST to http://localhost:8081/analyze_repository
-result = client.call_agent("module2", "analyze_repository", repo_path="/my/repo")
+# Under the hood, each tool sends: POST http://localhost:808x/{endpoint}
 """)
 
     concept(
@@ -285,6 +315,22 @@ def section_4_mcp_protocol(agent) -> None:
         "The orchestrator discovers and invokes tools served by an MCP server.\n\n"
         "Pattern: Orchestrator → tool call → MCP Server → Agent logic → Result",
     )
+
+    code_block("""# MCP tools — the orchestrator calls these like local functions
+# The MCP server handles discovery and routing to Module 3
+
+@tool
+def mcp_generate_cdk(stack_type: str, parameters: str = "{}") -> str:
+    \"\"\"Generate CDK stack code via MCP (Module 3).\"\"\"
+    result = mcp_registry.invoke_tool("mcp_generate_cdk", {
+        "stack_type": stack_type, "parameters": parameters,
+    })
+    return json.dumps(result)
+
+# MCP tool discovery — the server advertises what's available
+registry = MCPToolRegistry()
+tools = registry.list_tools()  # → ['mcp_analyze_requirements', 'mcp_generate_cdk', ...]
+""")
 
     if _RICH:
         table = Table(title="Direct HTTP vs MCP — Key Differences", border_style="cyan")
@@ -335,6 +381,17 @@ def section_5_sequential(agent, repo_path: str | None = None) -> None:
         "Module 3 NEEDS the repository analysis to know what to generate.",
     )
 
+    code_block("""# Sequential pipeline tool — the LLM builds the pipeline definition
+@tool
+def run_sequential_pipeline(pipeline_json: str) -> str:
+    \"\"\"Run agent tasks in sequence. Agent B gets Agent A's output.\"\"\"
+    tasks = json.loads(pipeline_json)
+    # Example: [{"agent_id": "module2", "task": "analyze_repository"},
+    #           {"agent_id": "module3", "task": "generate_cdk"}]
+    results = http_client.call_agents_sequential(tasks)
+    return json.dumps({"pipeline_type": "sequential", "results": results})
+""")
+
     info_list("Pipeline Steps", [
         ("Step 1: Module 2", "Analyze Repository → identify apps and dependencies"),
         ("Step 2: Module 3", "Generate CDK Code → using Module 2's output"),
@@ -379,6 +436,17 @@ def section_6_parallel(agent, repo_path: str | None = None) -> None:
         "Example: Check infrastructure health (Module 1) WHILE analyzing\n"
         "the repository (Module 2) — neither needs the other's output.",
     )
+
+    code_block("""# Parallel fanout tool — independent tasks run simultaneously
+@tool
+def run_parallel_fanout(tasks_json: str) -> str:
+    \"\"\"Run multiple agent tasks in parallel (fan-out/fan-in).\"\"\"
+    tasks = json.loads(tasks_json)
+    # Example: [{"agent_id": "module1", "task": "health_check"},
+    #           {"agent_id": "module2", "task": "analyze_repository"}]
+    results = http_client.call_agents_parallel(tasks)  # concurrent execution
+    return json.dumps({"pipeline_type": "parallel", "results": results})
+""")
 
     box(
         "Fan-Out / Fan-In Pattern",
@@ -457,6 +525,22 @@ def section_7_context_handoff() -> None:
             ("Shared State Store", "Agents read/write to common store — decoupled"),
         ])
 
+    code_block("""# Structured handoff — orchestrator transforms between agent formats
+
+# Module 2 output (repository analysis)
+module2_output = {"applications": [{"aws_requirements": {"compute": "ECS", ...}}]}
+
+# Orchestrator extracts and reshapes for Module 3
+module3_input = {
+    "requirements": module2_output["applications"][0]["aws_requirements"],
+    "region": "us-east-1",
+    "environment": "production",
+}
+
+# Module 3 receives clean, structured input it can act on
+mcp_registry.invoke_tool("mcp_analyze_requirements", module3_input)
+""")
+
     print("\n  [Demo] Structured Handoff — Module 2 → Orchestrator → Module 3\n")
 
     # Simulate Module 2 output
@@ -515,6 +599,18 @@ def section_8_error_handling(agent) -> None:
         "  • Agent response is low quality (confidence below threshold)\n\n"
         "The orchestrator must handle these gracefully.",
     )
+
+    code_block("""# HTTP client catches all errors — orchestrator gets data, not exceptions
+try:
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return {"agent": agent_id, "data": json.loads(resp.read())}
+except Exception as e:
+    # Connection refused, timeout, server crash — all handled
+    return {"agent": agent_id, "data": {"error": str(e)}}
+
+# The LLM sees the error in the tool response and reasons about it:
+# "Module 2 returned an error. I'll report what succeeded and what failed."
+""")
 
     info_list("Error Handling Strategies", [
         ("1. RETRY", "Transient failures (timeouts, rate limits) → exponential backoff"),
