@@ -7,8 +7,9 @@ Hands-on demonstration code for the **AI Agent Learning Series** workshop sessio
 This repository contains multiple modules demonstrating different agent frameworks and patterns:
 - **Module 1**: AWS Strands-based Infrastructure Agent (observe and analyze AWS resources)
 - **Module 2**: LangChain-based Repository Analysis Agent (analyze git repos for deployment planning)
+- **Module 3**: CDK Generation Agent with Evaluation & Routing (generate infrastructure code with quality assurance)
 
-Future modules will add provisioning, deployment, multi-agent patterns, long-term memory, and full autonomy.
+Future modules will add multi-agent orchestration, long-term memory, and full autonomy.
 
 ---
 
@@ -43,6 +44,27 @@ Analyzes git repositories to identify applications and AWS infrastructure requir
 **Tools:** 5 repository analysis tools (scan, detect, analyze, map)
 
 [See module2/README.md for details](module2/)
+
+### Module 3: CDK Generation Agent with Evaluation (LangChain Framework)
+
+Generates AWS CDK infrastructure code from requirements with comprehensive evaluation and quality assurance using LangChain + LangGraph.
+
+**Key Concepts:**
+- CDK infrastructure code generation
+- LLM-as-judge evaluation pattern
+- Automated evaluation pipelines
+- ISV integrations (Patronus AI, Deepchecks, Comet ML)
+- Routing agent for intent classification
+- Self-correction pattern
+
+**Tools:** 5 CDK generation tools (analyze, generate, validate, list, test)
+
+**Additional Components:**
+- **Routing Agent**: Intent classification and request routing
+- **Evaluation System**: Automated quality assessment for Module 2 & 3
+- **ISV Integrations**: Patronus AI, Deepchecks, Comet ML
+
+[See module3/README.md for details](module3/)
 
 ---
 
@@ -111,6 +133,43 @@ AGENT_MOCK_REPO=true python demos/module2_demo.py
 
 # Run specific section (1-11)
 AGENT_MOCK_REPO=true python demos/module2_demo.py --section 5
+
+# Run tests
+AGENT_MOCK_REPO=true pytest tests/test_repo_tools.py -v
+```
+
+### Module 3: CDK Generation Agent with Evaluation
+
+```bash
+# Run demo in mock mode (no AWS account or API keys needed)
+AGENT_MOCK_REPO=true python demos/module3_demo.py
+
+# Run specific section (1-11)
+AGENT_MOCK_REPO=true python demos/module3_demo.py --section 6
+
+# Run Module 3 evaluation pipeline
+AGENT_MOCK_REPO=true python -c "
+from evaluation.pipelines.module3_eval import run_module3_evaluation
+results = run_module3_evaluation(verbose=True)
+print(f'Average Score: {results[\"summary\"][\"average_combined_score\"]:.1f}/100')
+"
+
+# Run tests
+AGENT_MOCK_REPO=true pytest tests/test_module3_tools.py -v
+AGENT_MOCK_REPO=true pytest tests/test_routing_agent.py -v
+AGENT_MOCK_REPO=true pytest tests/test_evaluation.py -v
+```
+
+### Routing Agent
+
+```bash
+# Start routing agent server
+python routing-agent/app.py
+
+# Classify a request
+curl -X POST http://localhost:8083/route \
+  -H "Content-Type: application/json" \
+  -d '{"request": "Analyze my repository at /home/user/app"}'
 
 # Run tests
 AGENT_MOCK_REPO=true pytest tests/test_repo_tools.py -v

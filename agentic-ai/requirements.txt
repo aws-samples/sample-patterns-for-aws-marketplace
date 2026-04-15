@@ -13,6 +13,11 @@ langchain-community>=0.0.20       # Community integrations
 langgraph>=0.0.20                 # State machine workflows
 langsmith>=0.0.80                 # Tracing and evaluation platform
 
+# ── Module 3: CDK Generation & Evaluation ─────────────────────────────────────
+aws-cdk-lib>=2.100.0              # AWS CDK library
+constructs>=10.0.0                # CDK constructs
+cfn-lint>=0.83.0                  # CloudFormation linting (optional)
+
 # ── AWS AgentCore Runtime (deployment platform) ───────────────────────────────
 bedrock-agentcore>=0.1.0                  # BedrockAgentCoreApp wrapper
 bedrock-agentcore-starter-toolkit>=0.1.0  # agentcore CLI (configure / launch / invoke)
@@ -30,3 +35,13 @@ gitpython>=3.1.40                 # Git repository operations (Module 2)
 
 # ── Testing ───────────────────────────────────────────────────────────────────
 pytest>=8.0.0
+
+# ── ISV Partner Integrations (Module 3) ───────────────────────────────────────
+# Note: These are optional. The code will use mock mode if API keys are not provided.
+# Install these packages and set environment variables to enable real integrations:
+#   - PATRONUS_API_KEY for Patronus AI
+#   - DEEPCHECKS_API_KEY for Deepchecks (note: may not have free tier)
+#   - COMET_API_KEY for Comet ML
+patronus>=0.1.0                 # Patronus AI evaluation
+deepchecks>=0.18.0              # Deepchecks LLM testing
+comet-ml>=3.35.0                # Comet ML experiment tracking
