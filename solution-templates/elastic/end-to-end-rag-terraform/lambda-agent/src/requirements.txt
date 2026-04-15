@@ -28,7 +28,7 @@ langchain-core==0.3.68
 langchain-elasticsearch==0.3.2
 langchain-text-splitters==0.3.8
 langsmith==0.4.4
-marshmallow==3.26.1
+marshmallow==3.26.2
 multidict==6.6.3
 mypy_extensions==1.1.0
 numpy==2.3.1
