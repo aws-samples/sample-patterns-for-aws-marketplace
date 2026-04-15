@@ -106,7 +106,7 @@ pikepdf==9.9.0
 pillow==11.3.0
 propcache==0.3.2
 proto-plus==1.26.1
-protobuf==6.31.1
+protobuf==6.33.5
 psutil==7.0.0
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
