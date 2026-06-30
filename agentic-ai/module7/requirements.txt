@@ -39,7 +39,7 @@ jsonpatch==1.33
 jsonpointer==3.1.1
 langchain-core==1.4.0
 langchain-protocol==0.0.15
-langgraph-checkpoint==4.1.0
+langgraph-checkpoint==4.1.1
 langgraph-prebuilt==1.1.0
 langgraph-sdk==0.3.14
 langsmith==0.8.5
