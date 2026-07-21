@@ -65,6 +65,9 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
+# Module 8 local Agent Guard configs and audit evidence
+module8/generated/
+
 # Flask stuff:
 instance/
 .webassets-cache
