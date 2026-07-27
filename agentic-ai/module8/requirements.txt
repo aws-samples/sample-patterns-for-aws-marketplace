@@ -1,0 +1,6 @@
+agent-guard-core>=0.1.34
+PyJWT>=2.8.0
+rich>=13.7.0
+httpx>=0.27.0
+cryptography>=42.0.0
+python-dotenv>=1.0.0
