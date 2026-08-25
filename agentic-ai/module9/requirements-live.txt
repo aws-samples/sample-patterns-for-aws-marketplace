@@ -1,0 +1,22 @@
+# Module 9: live partner extras.
+#
+# Only needed to run against real Confluent Cloud, real Databricks, or a real
+# Bedrock knowledge base. Mock mode needs nothing here.
+#
+#   pip install -r module9/requirements.txt -r module9/requirements-live.txt
+
+# Confluent Cloud (Act 1). Prebuilt wheels cover macOS and Linux, so
+# librdkafka does not need to be installed separately.
+confluent-kafka>=2.5.0
+
+# Databricks (Act 2): Delta Lake writes and Unity Catalog lineage reads.
+databricks-sql-connector>=3.3.0
+databricks-sdk>=0.30.0
+
+# Silences a startup warning from the Databricks SQL connector.
+pyarrow>=17.0.0
+
+# Module 7 knowledge base backends, only if you point at Atlas and Aura
+# instead of a Bedrock knowledge base.
+# pymongo>=4.10.0
+# neo4j>=5.25.0
