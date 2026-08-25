@@ -97,7 +97,7 @@ def section_1_three_layers() -> None:
   │  REASONING LAYER  (config/models.py)                           │
   │                                                                 │
   │    model = BedrockModel(                                        │
-  │        model_id="us.anthropic.claude-sonnet-4-...",            │
+  │        model_id="us.anthropic.claude-sonnet-4-6",            │
   │        temperature=0.1,    ← low = deterministic infra work    │
   │    )                                                            │
   │                                                                 │

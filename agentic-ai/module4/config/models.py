@@ -17,7 +17,7 @@ from langchain_aws import ChatBedrock
 
 def get_chat_bedrock_model(
     region: str | None = None,
-    model_id: str = "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    model_id: str = "us.anthropic.claude-sonnet-4-6",
     temperature: float = 0.1,
     max_tokens: int = 4096,
     streaming: bool = False,

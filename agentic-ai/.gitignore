@@ -224,6 +224,11 @@ __marimo__/
 
 # Local-only live credential helper (contains real secrets — never commit)
 setup_live_env.sh
+# Module 9 local virtualenvs
+.venv-m9/
 
 # macOS
 .DS_Store
+
+# Virtualenv marker file (was previously committed by mistake)
+pyvenv.cfg

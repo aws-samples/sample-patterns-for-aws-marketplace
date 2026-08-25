@@ -5,11 +5,22 @@ Hands-on demonstration code for the **AI Agent Learning Series** workshop sessio
 **Use case:** An AWS Infrastructure Engineer is building an agentic system that can provision infrastructure, deploy and build microservices, and observe those services running in AWS.
 
 This repository contains multiple modules demonstrating different agent frameworks and patterns:
-- **Module 1**: AWS Strands-based Infrastructure Agent (observe and analyze AWS resources)
-- **Module 2**: LangChain-based Repository Analysis Agent (analyze git repos for deployment planning)
-- **Module 3**: CDK Generation Agent with Evaluation & Routing (generate infrastructure code with quality assurance)
 
-Future modules will add multi-agent orchestration, long-term memory, and full autonomy.
+| Module | Focus | Framework | Featured partners |
+| --- | --- | --- | --- |
+| **1** | Infrastructure Agent: observe and analyze AWS resources | AWS Strands | AWS only |
+| **2** | Repository Analysis Agent: analyze git repos for deployment planning | LangChain | AWS only |
+| **3** | CDK Generation Agent with evaluation and routing | LangChain | Comet ML, Deepchecks, Patronus AI |
+| **4** | Multi-agent orchestration: supervisor pattern, MCP and A2A protocols | LangGraph | AWS only |
+| **5** | Domain-specific agents: the Domain Adaptation Engine | LangGraph | AWS only |
+| **6** | Durable orchestration and long-running workflows | Temporal | Temporal |
+| **7** | Agent memory systems: session, semantic, and relationship memory | LangGraph | Redis Cloud, MongoDB Atlas, Neo4j Aura |
+| **8** | Agent identity and access management | LangGraph | Auth0, CyberArk |
+| **9** | Data pipelines and lineage: governed, fresh, traceable knowledge | LangGraph | Confluent Cloud, Databricks |
+
+Every module runs in a mock mode that needs no cloud accounts, so any module can
+be run standalone. See each module's `README.md` for its own quickstart, and
+`moduleN/requirements.txt` where present for module-specific dependencies.
 
 ---
 
@@ -70,32 +81,32 @@ Generates AWS CDK infrastructure code from requirements with comprehensive evalu
 
 ## Project Structure
 
+Each module is a self-contained Python package following the same shape:
+`agent.py` for the agent factory, `config/` for model and domain
+configuration, `tools/` for the agent-facing tools, `prompts/` for the
+system prompt layers, and `mock/` for the offline backends.
+
 ```
-infra-agent/
-├── module1/                    # AWS Infrastructure Agent (Strands)
-│   ├── agent.py               # Core agent with three layers
-│   ├── app.py                 # AgentCore Runtime entrypoint
-│   ├── config/models.py       # Anthropic + Hugging Face configs
-│   └── tools/aws_tools.py     # 5 read-only AWS tools
-│
+agentic-ai/
+├── module1/                    # Infrastructure Agent (AWS Strands)
 ├── module2/                    # Repository Analysis Agent (LangChain)
-│   ├── agent.py               # LangChain agent factory
-│   ├── app.py                 # HTTP server entrypoint
-│   ├── config/models.py       # ChatBedrock configuration
-│   ├── tools/repo_tools.py    # 5 repository analysis tools
-│   ├── workflows/             # LangGraph state machine
-│   └── prompts/               # System prompts
+├── module3/                    # CDK Generation with evaluation (LangChain)
+├── module4/                    # Multi-agent orchestration, MCP and A2A
+├── module5/                    # Domain Adaptation Engine
+├── module6/                    # Durable workflows (Temporal)
+├── module7/                    # Agent memory systems
+├── module8/                    # Agent identity and access management
+├── module9/                    # Data pipelines and lineage
 │
-├── demos/
-│   ├── module1_demo.py        # Module 1 workshop demo (6 sections)
-│   └── module2_demo.py        # Module 2 workshop demo (6 sections)
+├── demos/                      # moduleN_demo.py, one guided demo per module
+├── tests/                      # pytest suites, all runnable in mock mode
+├── evaluation/                 # Shared evaluation harness (modules 2 and 3)
+├── orchestration/              # Temporal workflows and activities
+├── routing_agent/              # Standalone routing service
+├── scripts/                    # Helper scripts
 │
-├── tests/
-│   ├── test_tools.py          # Module 1 tests
-│   ├── test_repo_tools.py     # Module 2 tests
-│   └── fixtures/              # Test repository fixtures
-│
-└── requirements.txt           # Dependencies for both modules
+├── requirements.txt            # Shared dependencies (modules 1 to 6)
+└── moduleN/requirements.txt    # Module-specific dependencies where needed
 ```
 
 ---
@@ -160,11 +171,51 @@ AGENT_MOCK_REPO=true pytest tests/test_routing_agent.py -v
 AGENT_MOCK_REPO=true pytest tests/test_evaluation.py -v
 ```
 
+### Modules 4 to 9
+
+Every module follows the same pattern: run its demo in mock mode with no cloud
+accounts, then run its tests. Each module's own `README.md` covers live setup
+and the partner credentials it needs.
+
+Mock mode is selected per module by an environment variable. Modules 7 and 9
+also accept `--mock` and `--no-pause` flags on their demos.
+
+```bash
+# Module 4: multi-agent orchestration, MCP and A2A
+AGENT_MOCK_MODE=true python demos/module4_demo.py
+
+# Module 5: Domain Adaptation Engine
+AGENT_MOCK_DOMAIN=true python demos/module5_demo.py
+
+# Module 6: durable workflows with Temporal
+AGENT_MOCK_MODE=true python demos/module6_demo.py
+pytest tests/test_module6_tools.py -v
+
+# Module 7: agent memory (Redis Cloud, MongoDB Atlas, Neo4j Aura)
+AGENT_MOCK_MEMORY=true python demos/module7_demo.py
+AGENT_MOCK_MEMORY=true pytest tests/test_module7_*.py -v
+
+# Module 8: agent identity and access (Auth0, CyberArk)
+AGENT_MOCK_MODE=true python demos/module8_demo.py
+AGENT_MOCK_MODE=true pytest tests/test_module8_identity.py -v
+
+# Module 9: data pipelines and lineage (Confluent Cloud, Databricks)
+python demos/module9_demo.py --mock
+AGENT_MOCK_PIPELINE=true AGENT_MOCK_MEMORY=true pytest tests/test_module9_*.py -v
+```
+
+Modules 7, 8, and 9 ship their own `requirements.txt`, and Module 9 adds
+`requirements-live.txt` for the optional live partner clients:
+
+```bash
+pip install -r module9/requirements.txt -r module9/requirements-live.txt
+```
+
 ### Routing Agent
 
 ```bash
 # Start routing agent server
-python routing-agent/app.py
+python routing_agent/app.py
 
 # Classify a request
 curl -X POST http://localhost:8083/route \
