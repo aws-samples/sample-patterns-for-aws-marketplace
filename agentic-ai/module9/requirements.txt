@@ -1,0 +1,26 @@
+# Module 9: Data Pipelines and Lineage
+# Core (required in all modes)
+langchain-aws>=1.5.0
+langgraph>=1.0.0
+langchain-core>=1.0.0
+boto3>=1.38.0
+numpy>=1.26.0
+rich>=13.7.0
+python-dotenv>=1.0.0
+pytest>=8.0.0
+
+# Module 8 identity primitives (access-control seams)
+PyJWT>=2.8.0
+httpx>=0.27.0
+cryptography>=42.0.0
+
+# Live path only: Confluent Cloud (Act 1)
+# confluent-kafka>=2.5.0
+
+# Live path only: Databricks Delta Lake + Unity Catalog (Act 2)
+# databricks-sdk>=0.30.0
+# databricks-sql-connector>=3.3.0
+
+# Live path only: Module 7 knowledge base backends
+# pymongo>=4.10.0
+# neo4j>=5.25.0

@@ -29,10 +29,10 @@ from typing import Any
 from langchain_aws import ChatBedrock
 
 # Cross-region inference profile (recommended)
-CLAUDE_SONNET_4_CRI = "us.anthropic.claude-sonnet-4-20250514-v1:0"
+CLAUDE_SONNET_4_CRI = "us.anthropic.claude-sonnet-4-6"
 
 # Single-region model ID (fallback)
-CLAUDE_SONNET_4_DIRECT = "anthropic.claude-sonnet-4-20250514-v1:0"
+CLAUDE_SONNET_4_DIRECT = "anthropic.claude-sonnet-4-6"
 
 
 def get_chat_bedrock_model(

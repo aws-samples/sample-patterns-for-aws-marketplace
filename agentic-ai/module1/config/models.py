@@ -10,7 +10,7 @@ Both are available with free trials through AWS Marketplace / Bedrock:
   1. ANTHROPIC — Claude Sonnet 4 via Amazon Bedrock
      Access : Amazon Bedrock → Model Access → Enable Anthropic models
      Free   : Pay-per-token, no subscription fee; enable in AWS Console
-     Model  : us.anthropic.claude-sonnet-4-20250514-v1:0 (cross-region)
+     Model  : us.anthropic.claude-sonnet-4-6 (cross-region)
      Why    : Primary reasoning engine — best instruction-following,
               tool use, and multi-step reasoning for infra tasks.
 
@@ -47,10 +47,12 @@ from strands.models import BedrockModel
 # ---------------------------------------------------------------------------
 
 # Cross-region inference profile (recommended — auto-routes for availability)
-CLAUDE_SONNET_4_CRI = "us.anthropic.claude-sonnet-4-20250514-v1:0"
+CLAUDE_SONNET_4_CRI = "us.anthropic.claude-sonnet-4-6"
 
-# Single-region model ID (use if CRI not available in your region)
-CLAUDE_SONNET_4_DIRECT = "anthropic.claude-sonnet-4-20250514-v1:0"
+# Single-region model ID. Note that on-demand invocation requires an
+# inference profile, so this form needs provisioned throughput.
+# Prefer the cross-region profile above.
+CLAUDE_SONNET_4_DIRECT = "anthropic.claude-sonnet-4-6"
 
 
 def get_bedrock_model(
