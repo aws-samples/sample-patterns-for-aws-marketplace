@@ -108,7 +108,7 @@ propcache==0.3.2
 proto-plus==1.26.1
 protobuf==6.31.1
 psutil==7.0.0
-pyasn1==0.6.1
+pyasn1==0.6.2
 pyasn1_modules==0.4.2
 pycocotools==2.0.10
 pycparser==2.22
