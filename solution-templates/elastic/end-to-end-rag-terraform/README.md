@@ -1,6 +1,6 @@
 # Building a Production RAG Pipeline on AWS in a Day
 
-> An end-to-end Retrieval-Augmented Generation system using Amazon Bedrock, Elastic Cloud, and Terraform — plus the bugs I found (and fixed) in the official AWS template.
+> An end-to-end Retrieval-Augmented Generation system using Amazon Bedrock, Elastic Cloud, and Terraform, plus the bugs I found (and fixed) in the official AWS template.
 
 This is a working guide. I built this on a Saturday using an [AWS Marketplace sample template](https://github.com/aws-samples/sample-patterns-for-aws-marketplace), ran into four real bugs, fixed them, and submitted a PR back to the repo. Everything here reflects what actually happened, not what the docs said would happen.
 
@@ -27,9 +27,9 @@ RAG stands for Retrieval-Augmented Generation. The idea is simple: instead of as
 
 Here's the mental model that clicked for me:
 
-- **S3** is the filing cabinet — your raw documents live here
-- **Elastic** is the memory — it stores searchable vector representations of those documents
-- **Bedrock** is the brain — it understands language, turns text into vectors, and generates answers
+- **S3** is the filing cabinet: your raw documents live here
+- **Elastic** is the memory. It stores searchable vector representations of those documents
+- **Bedrock** is the brain. It understands language, turns text into vectors, and generates answers
 
 The pipeline has two phases:
 
@@ -51,16 +51,16 @@ The key insight is the difference between keyword search and vector search. Keyw
 
 If you haven't used Terraform before, here's the analogy that made it click:
 
-- **AWS** is the city — it owns the land, enforces the building codes, and sends the bill
-- **Terraform** is the architect and construction crew — it picks the land (AWS region), lays the foundation (VPC and networking), puts up the walls (Lambda functions, S3 bucket, API Gateway), and connects the plumbing (PrivateLink tunnel to Elastic)
-- **Docker** is the interior — the furniture, the people, and the actual work happening inside the building
+- **AWS** is the city. It owns the land, enforces the building codes, and sends the bill
+- **Terraform** is the architect and construction crew. It picks the land (AWS region), lays the foundation (VPC and networking), puts up the walls (Lambda functions, S3 bucket, API Gateway), and connects the plumbing (PrivateLink tunnel to Elastic)
+- **Docker** is the interior: the furniture, the people, and the actual work happening inside the building
 
 Terraform's four commands you'll use:
 
 | Command | What it does |
 |---|---|
 | `terraform init` | Downloads providers and modules (like `npm install`) |
-| `terraform plan` | Dry run — shows exactly what will be created or changed |
+| `terraform plan` | Dry run that shows exactly what will be created or changed |
 | `terraform apply` | Actually builds the infrastructure |
 | `terraform destroy` | Tears everything down |
 
@@ -142,8 +142,8 @@ Your `terraform.tfvars` file is your personal configuration. It never goes in Gi
 ## Prerequisites
 
 - An AWS account
-- Terraform >= 1.14.7 — install with `brew install hashicorp/tap/terraform`
-- AWS CLI v2 — install from [aws.amazon.com/cli](https://aws.amazon.com/cli/)
+- Terraform >= 1.14.7 (install with `brew install hashicorp/tap/terraform`)
+- AWS CLI v2 (install from [aws.amazon.com/cli](https://aws.amazon.com/cli/))
 - Docker Desktop (running)
 - Git
 
@@ -164,7 +164,7 @@ Verify it worked:
 aws sts get-caller-identity
 ```
 
-You should see your account ID and user ARN. If you get an error, your credentials aren't set up correctly — stop here and fix it.
+You should see your account ID and user ARN. If you get an error, your credentials aren't set up correctly. Stop here and fix it.
 
 ### 2. Enable Amazon Bedrock Models
 
@@ -293,7 +293,7 @@ terraform apply
 
 `terraform apply` will prompt you to confirm. Type `yes`.
 
-The full deploy takes roughly 10-15 minutes. At the end, Terraform will output your API Gateway invoke URL — save it.
+The full deploy takes roughly 10-15 minutes. At the end, Terraform will output your API Gateway invoke URL. Save it.
 
 ---
 
@@ -315,7 +315,7 @@ aws = {
 }
 ```
 
-The VPC module used in `solution.tf` requires `>= 6.28.0`. An exact pin of `6.0.0` satisfies neither constraint — Terraform can't find a version that meets both requirements simultaneously, and `terraform init` fails with a dependency conflict.
+The VPC module used in `solution.tf` requires `>= 6.28.0`. An exact pin of `6.0.0` satisfies neither constraint. Terraform can't find a version that meets both requirements simultaneously, and `terraform init` fails with a dependency conflict.
 
 **Fix:** Change the exact pin to a minimum version constraint in both files:
 
@@ -337,7 +337,7 @@ This allows Terraform to select AWS provider `6.37.0` (or whatever current versi
 
 **File:** `solution.tf`, line 19
 
-The original template creates the VPC across `us-east-1a`, `us-east-1b`, and `us-east-1c`. The problem is that Elastic's PrivateLink endpoint service doesn't operate in `us-east-1a` — the VPC endpoint can't be created there, and the deployment fails.
+The original template creates the VPC across `us-east-1a`, `us-east-1b`, and `us-east-1c`. The problem is that Elastic's PrivateLink endpoint service doesn't operate in `us-east-1a`, so the VPC endpoint can't be created there, and the deployment fails.
 
 You can verify this yourself:
 
@@ -380,7 +380,7 @@ This is a good reminder that AWS services don't always operate in all availabili
 
 The template references Docker images hosted in what appears to be AWS's internal ECR account (`703671915761`). Without an explicit resource policy granting cross-account pull access, your Lambda functions fail to start with an image pull error.
 
-This is fixable by building the images yourself from the included Dockerfiles — see Step 7 in the setup section above for the full commands.
+This is fixable by building the images yourself from the included Dockerfiles. See Step 7 in the setup section above for the full commands.
 
 After building and pushing to your own ECR, update the `image_uri` in the relevant `function.tf` files within `lambda-vectorizer/` and `lambda-agent/`.
 
@@ -393,12 +393,12 @@ After building and pushing to your own ECR, update the `image_uri` in the releva
 The original agent used `amazon.titan-text-premier-v1:0`, which is unavailable, combined with `BedrockLLM` (the older LangChain Bedrock integration):
 
 ```python
-# Original (broken) — model doesn't exist, wrong class
+# Original (broken): model doesn't exist, wrong class
 from langchain_aws import BedrockLLM
 llm = BedrockLLM(model_id="amazon.titan-text-premier-v1:0")
 ```
 
-There was also a body parsing bug — the original code passed the raw JSON string from the API Gateway event body directly to the query function, instead of parsing it first.
+There was also a body parsing bug. The original code passed the raw JSON string from the API Gateway event body directly to the query function, instead of parsing it first.
 
 **Fix:** Switch to `ChatBedrock` with `amazon.nova-pro-v1:0` and parse the body correctly:
 
@@ -464,11 +464,11 @@ aws logs tail /aws/lambda/lambda-agent --follow
 
 ### Regions vs. Availability Zones
 
-These are different things. A **region** is a geographic area (`us-east-1` = Northern Virginia). An **availability zone** is an individual data center within that region (`us-east-1a`, `us-east-1b`, etc.). Services don't always operate in every AZ within a region — this is exactly what caused Bug 2. Always check before assuming.
+These are different things. A **region** is a geographic area (`us-east-1` = Northern Virginia). An **availability zone** is an individual data center within that region (`us-east-1a`, `us-east-1b`, etc.). Services don't always operate in every AZ within a region, and this is exactly what caused Bug 2. Always check before assuming.
 
 ### AWS Secrets Manager is Non-Negotiable
 
-Credentials in code files end up in Git history. Secrets Manager costs about $0.40/month per secret and keeps credentials out of your codebase entirely. The Lambda functions in this project fetch the Elastic username and password from Secrets Manager at startup — the actual values never touch the code.
+Credentials in code files end up in Git history. Secrets Manager costs about $0.40/month per secret and keeps credentials out of your codebase entirely. The Lambda functions in this project fetch the Elastic username and password from Secrets Manager at startup, so the actual values never touch the code.
 
 ### Docker + Lambda Has Quirks
 
@@ -509,7 +509,7 @@ Type `yes` when prompted. The whole stack will be removed in a few minutes. At r
 
 After working through these bugs, I submitted [PR #43](https://github.com/aws-samples/sample-patterns-for-aws-marketplace/pull/43) to the official AWS repo with the provider version fix and the AZ correction.
 
-At the time of submission, it was the first PR from a human contributor — every previous PR in the repo had come from an automated bot. If you run into additional issues and fix them, consider submitting a PR. The template is used by people learning this stack, and each improvement makes it easier for the next person.
+At the time of submission, it was the first PR from a human contributor. Every previous PR in the repo had come from an automated bot. If you run into additional issues and fix them, consider submitting a PR. The template is used by people learning this stack, and each improvement makes it easier for the next person.
 
 ---
 
@@ -517,7 +517,7 @@ At the time of submission, it was the first PR from a human contributor — ever
 
 ```
 end-to-end-rag-terraform/
-├── solution.tf              # Top-level orchestration — VPC, modules wired together
+├── solution.tf              # Top-level orchestration: VPC, modules wired together
 ├── variables.tf             # Input variable declarations
 ├── terraform.tfvars         # Your config (not in Git)
 ├── outputs.tf               # What Terraform prints after apply
