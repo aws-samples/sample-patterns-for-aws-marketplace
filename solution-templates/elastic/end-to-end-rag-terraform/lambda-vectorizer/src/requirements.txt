@@ -64,7 +64,7 @@ langchain-elasticsearch==0.3.2
 langchain-text-splitters==0.3.8
 langdetect==1.0.9
 langsmith==0.4.4
-lxml==6.0.0
+lxml==6.1.0
 Markdown==3.8.2
 MarkupSafe==3.0.2
 marshmallow==3.26.1
