@@ -1,0 +1,9 @@
+# Module 12 runtime, demo, and tests.
+boto3==1.43.108
+jsonschema==4.26.0
+opentelemetry-api==1.45.0
+opentelemetry-sdk==1.45.0
+opentelemetry-exporter-otlp-proto-http==1.45.0
+rich==14.2.0
+strands-agents>=1.57,<2
+pytest==9.1.1
