@@ -1,0 +1,38 @@
+{
+  "normal": {
+    "repository_fixture": "clean_repository.json",
+    "companion_posture": "healthy",
+    "snyk_posture": "healthy",
+    "security_review": "approved",
+    "financial_approval": "approved",
+    "environment": "staging",
+    "expected_policy": "ALLOW"
+  },
+  "tainted_repository": {
+    "repository_fixture": "poisoned_repository.json",
+    "companion_posture": "healthy",
+    "snyk_posture": "healthy",
+    "security_review": "approved",
+    "financial_approval": "approved",
+    "environment": "staging",
+    "expected_policy": "DENY"
+  },
+  "quarantined_tool": {
+    "repository_fixture": "clean_repository.json",
+    "companion_posture": "quarantine",
+    "snyk_posture": "quarantine",
+    "security_review": "approved",
+    "financial_approval": "approved",
+    "environment": "staging",
+    "expected_policy": "DENY"
+  },
+  "missing_financial_approval": {
+    "repository_fixture": "clean_repository.json",
+    "companion_posture": "healthy",
+    "snyk_posture": "healthy",
+    "security_review": "approved",
+    "financial_approval": "pending",
+    "environment": "staging",
+    "expected_policy": "DENY"
+  }
+}

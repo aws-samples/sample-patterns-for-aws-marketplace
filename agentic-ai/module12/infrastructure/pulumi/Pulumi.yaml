@@ -1,0 +1,7 @@
+name: module12-security-observability
+description: Module 12 security and observability foundation
+runtime:
+  name: python
+  options:
+    toolchain: pip
+    virtualenv: ../../../.venvs/module12

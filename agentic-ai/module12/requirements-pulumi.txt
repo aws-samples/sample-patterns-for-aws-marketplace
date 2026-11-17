@@ -1,0 +1,4 @@
+# Pulumi environment for module12/infrastructure/pulumi.
+pulumi==3.263.0
+pulumi-aws==7.46.0
+pulumi-aws-native==1.81.0

@@ -1,0 +1,5 @@
+boto3==1.43.108
+opentelemetry-api==1.45.0
+opentelemetry-sdk==1.45.0
+opentelemetry-exporter-otlp-proto-http==1.45.0
+strands-agents>=1.57,<2

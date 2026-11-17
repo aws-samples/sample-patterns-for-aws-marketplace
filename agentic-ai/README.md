@@ -19,6 +19,7 @@ This repository contains multiple modules demonstrating different agent framewor
 | **9** | Data pipelines and lineage: governed, fresh, traceable knowledge | LangGraph | Confluent Cloud, Databricks |
 | **10** | Agent exposure, capability rollout, model routing, and trace inspection | OpenAI SDK (Responses API) on Amazon Bedrock; Strands adapter for hosted-partner live mode | LaunchDarkly, Portkey AI, Logz.io |
 | **11** | MLOps and the agent development lifecycle: versioned, gated, progressively delivered releases | OpenAI SDK on Bedrock (Module 10 loop), Pulumi | GitLab, Vercel |
+| **12** | Security posture, deterministic policy enforcement, and behavioral investigation for agent workflows | Amazon Bedrock AgentCore, Pulumi, OpenTelemetry | Snyk, Honeycomb |
 
 Partner integrations run as in-process mocks, so you need no partner accounts
 to run any module standalone. Demos that use an LLM still call Amazon Bedrock
@@ -35,12 +36,13 @@ accounts, you can still run its offline tests and replay a real run with
 | Modules 1, 2, 4 and 7, Module 10 `--mode local` | Needs Bedrock | The agent itself is the LLM loop |
 | Module 3 | Needs Bedrock for Section 9 | Sections 1-8 run offline (template CDK generation, mock judges); Section 9 makes a live routing call |
 | Module 11 | Live only: AWS, GitLab, Vercel | Offline: `pytest tests/test_module11_*.py`, and `python demos/module11_demo.py --replay-fixtures` (committed, redacted captures of a real run, under a REPLAY banner) |
+| Module 12 | Runs fully offline by default | Pass `--stack module12-demo` for the deployed AgentCore Runtime, posture controller, and DynamoDB evidence |
 
 ---
 
 ## Environments
 
-The modules pin different dependency sets, so they install into four
+The modules pin different dependency sets, so they install into five
 environment families. `./INSTALL.sh <family>` creates the venv, checks the
 Python version and prints the next commands; `python verify_installation.py`
 checks the family you are in. Run every command from `agentic-ai/`.
@@ -51,11 +53,12 @@ checks the family you are in. Run every command from `agentic-ai/`.
 | `module4` | 4 | 3.12 | `module4/.venv` | `./INSTALL.sh module4` | `AGENT_MOCK_MODE=true pytest tests/test_module4_orchestrator.py -v` |
 | `module7` | 7 | 3.12 | `module7/.venv` | `./INSTALL.sh module7` | `AGENT_MOCK_MEMORY=true pytest tests/test_module7_*.py -v` |
 | `module10` | 10 | 3.13 | `.venv`, or `.venv-m10` if `.venv` already holds the core env | `./INSTALL.sh module10` (`VENV_DIR=.venv-m10 ./INSTALL.sh module10`) | See [Module 10 operations](module10/deployment/OPERATIONS.md) |
+| `module12` | 12 | 3.13 | `.venvs/module12` | See [Module 12 setup](module12/README.md#deployment-quick-start) | `python -m pytest tests/test_module12_*.py -q` |
 
 The families are separate because Module 7 pins exact versions (a tested,
-advisory-free set), Module 4 has its own requirements, and Module 10 runs on
-Python 3.13 with its own SDKs (OpenAI, LaunchDarkly, OpenTelemetry). Python 3.12 is
-tested for Modules 1-9 and Python 3.13 for Module 10.
+advisory-free set), Module 4 has its own requirements, and Modules 10 and 12 run
+on Python 3.13 with their own SDK and infrastructure dependencies. Python 3.12
+is tested for Modules 1-9 and Python 3.13 for Modules 10 and 12.
 
 ### Mock flags
 
@@ -414,6 +417,20 @@ python -m module11 check                         # expect 0 error(s), 0 warning(
 # Replay a real run from the committed, redacted captures (no credentials)
 python demos/module11_demo.py --replay-fixtures --no-pause
 ```
+
+### Module 12: Security and Observability
+
+Run the deterministic local demo or use the deployed Pulumi stack:
+
+```bash
+source .venvs/module12/bin/activate
+python demos/module12_demo.py
+
+python demos/module12_demo.py --seed --stack module12-demo
+python demos/module12_demo.py --stack module12-demo
+```
+
+See [module12/README.md](module12/README.md) for deployment and section commands.
 
 ---
 

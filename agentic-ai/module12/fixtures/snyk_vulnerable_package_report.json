@@ -1,0 +1,164 @@
+{
+  "$schema": "module12-recorded-snyk-cli-fixture/v1",
+  "capturedAt": "2026-11-01",
+  "ok": false,
+  "projectName": "module12-companion-tools-vulnerable-fixture",
+  "packageManager": "npm",
+  "targetFile": "module12/fixtures/vulnerable_companion_tool/package-lock.json",
+  "dependencyCount": 1,
+  "uniqueCount": 8,
+  "vulnerabilities": [
+    {
+      "id": "SNYK-JS-LODASH-1018905",
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "severity": "medium",
+      "packageName": "lodash",
+      "version": "4.17.15",
+      "from": [
+        "module12-companion-tools-vulnerable-fixture@1.0.0",
+        "lodash@4.17.15"
+      ],
+      "fixedIn": [
+        "4.17.21"
+      ],
+      "isUpgradable": true,
+      "upgradePath": [
+        false,
+        "lodash@4.17.21"
+      ]
+    },
+    {
+      "id": "SNYK-JS-LODASH-1040724",
+      "title": "Code Injection",
+      "severity": "high",
+      "packageName": "lodash",
+      "version": "4.17.15",
+      "from": [
+        "module12-companion-tools-vulnerable-fixture@1.0.0",
+        "lodash@4.17.15"
+      ],
+      "fixedIn": [
+        "4.17.21"
+      ],
+      "isUpgradable": true,
+      "upgradePath": [
+        false,
+        "lodash@4.17.21"
+      ]
+    },
+    {
+      "id": "SNYK-JS-LODASH-15053838",
+      "title": "Prototype Pollution",
+      "severity": "medium",
+      "packageName": "lodash",
+      "version": "4.17.15",
+      "from": [
+        "module12-companion-tools-vulnerable-fixture@1.0.0",
+        "lodash@4.17.15"
+      ],
+      "fixedIn": [
+        "4.17.23"
+      ],
+      "isUpgradable": true,
+      "upgradePath": [
+        false,
+        "lodash@4.17.23"
+      ]
+    },
+    {
+      "id": "SNYK-JS-LODASH-15869619",
+      "title": "Prototype Pollution",
+      "severity": "medium",
+      "packageName": "lodash",
+      "version": "4.17.15",
+      "from": [
+        "module12-companion-tools-vulnerable-fixture@1.0.0",
+        "lodash@4.17.15"
+      ],
+      "fixedIn": [
+        "4.18.1"
+      ],
+      "isUpgradable": true,
+      "upgradePath": [
+        false,
+        "lodash@4.18.1"
+      ]
+    },
+    {
+      "id": "SNYK-JS-LODASH-15869625",
+      "title": "Arbitrary Code Injection",
+      "severity": "high",
+      "packageName": "lodash",
+      "version": "4.17.15",
+      "from": [
+        "module12-companion-tools-vulnerable-fixture@1.0.0",
+        "lodash@4.17.15"
+      ],
+      "fixedIn": [
+        "4.18.1"
+      ],
+      "isUpgradable": true,
+      "upgradePath": [
+        false,
+        "lodash@4.18.1"
+      ]
+    },
+    {
+      "id": "SNYK-JS-LODASH-567746",
+      "title": "Prototype Pollution",
+      "severity": "high",
+      "packageName": "lodash",
+      "version": "4.17.15",
+      "from": [
+        "module12-companion-tools-vulnerable-fixture@1.0.0",
+        "lodash@4.17.15"
+      ],
+      "fixedIn": [
+        "4.17.20"
+      ],
+      "isUpgradable": true,
+      "upgradePath": [
+        false,
+        "lodash@4.17.20"
+      ]
+    },
+    {
+      "id": "SNYK-JS-LODASH-608086",
+      "title": "Prototype Pollution",
+      "severity": "high",
+      "packageName": "lodash",
+      "version": "4.17.15",
+      "from": [
+        "module12-companion-tools-vulnerable-fixture@1.0.0",
+        "lodash@4.17.15"
+      ],
+      "fixedIn": [
+        "4.17.17"
+      ],
+      "isUpgradable": true,
+      "upgradePath": [
+        false,
+        "lodash@4.17.17"
+      ]
+    },
+    {
+      "id": "SNYK-JS-LODASH-6139239",
+      "title": "Prototype Pollution",
+      "severity": "high",
+      "packageName": "lodash",
+      "version": "4.17.15",
+      "from": [
+        "module12-companion-tools-vulnerable-fixture@1.0.0",
+        "lodash@4.17.15"
+      ],
+      "fixedIn": [
+        "4.17.17"
+      ],
+      "isUpgradable": true,
+      "upgradePath": [
+        false,
+        "lodash@4.17.17"
+      ]
+    }
+  ]
+}

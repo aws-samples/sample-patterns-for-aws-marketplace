@@ -1,0 +1,10 @@
+{
+  "name": "module12-companion-tools-vulnerable-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Manifest-only dependency fixture for the Module 12 Snyk quarantine demo. Never execute this package.",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "lodash": "4.17.15"
+  }
+}
